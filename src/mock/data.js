@@ -121,3 +121,42 @@ export const data = {
     }
   ]
 };
+
+export const metaData = {
+  '1': {
+    id: '1',
+    message: 'This is message for 1'
+  },
+  '2': {
+    id: '2',
+    message: 'This is message for 2'
+  },
+  '3': {
+    id: '3',
+    message: 'This is message for 3'
+  },
+  '4': {
+    id: '4',
+    message: 'This is message for 4'
+  },
+  '5': {
+    id: '5',
+    message: 'This is message for 5'
+  },
+  '6': {
+    id: '6',
+    message: 'This is message for 6'
+  },
+  '7': {
+    id: '7',
+    message: 'This is message for 7'
+  },
+  '8': {
+    id: '8',
+    message: 'This is message for 8'
+  },
+  '9': {
+    id: '9',
+    message: 'This is message for 9'
+  }
+};

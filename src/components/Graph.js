@@ -52,6 +52,10 @@ export default function Graph(props) {
               formatText: model => {
                 return model.label;
               }
+            },
+            {
+              type: 'collapse-expand-group',
+              trigger: 'click'
             }
           ]
         },

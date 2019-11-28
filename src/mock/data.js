@@ -2,11 +2,13 @@ export const data = {
   nodes: [
     {
       id: '1',
-      label: '公司1'
+      label: '公司1',
+      groupId: 'a'
     },
     {
       id: '2',
-      label: '公司2'
+      label: '公司2',
+      groupId: 'a'
     },
     {
       id: '3',
@@ -117,6 +119,14 @@ export const data = {
         type: '凭证融资',
         amount: '100,000,000,00 元',
         date: '2019-08-03'
+      }
+    }
+  ],
+  groups: [
+    {
+      id: 'a',
+      title: {
+        text: 'Cluster A'
       }
     }
   ]

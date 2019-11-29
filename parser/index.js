@@ -9,8 +9,9 @@ const reader = readline.createInterface({
 
 const nodes = {
   root: {
-    id: -1,
-    name: 'root'
+    id: '-1',
+    name: 'root',
+    children: []
   }
 };
 const edges = [];
@@ -20,7 +21,8 @@ const shouldFilterOut = name => {
   if (
     name.indexOf('java.') !== -1 ||
     name.indexOf('javax.') !== -1 ||
-    name.indexOf('org.eclipse.') !== -1
+    name.indexOf('org.eclipse.') !== -1 ||
+    name.indexOf('.compiler') !== -1
   ) {
     return true;
   }
@@ -98,15 +100,9 @@ reader.on('line', function(line) {
 
 reader.on('close', function() {
   const seenId = {};
-  const seenName = {};
   const nodeArray = Object.keys(nodes).map(key => nodes[key]);
-  for (let node of nodeArray) {
-    if (!seenName[node.name]) {
-      seenName[node.name] = true;
-    } else {
-      console.log('hasDuplication');
-    }
-  }
+  console.log(`Number of nodes: ${nodeArray.length}`);
+  console.log(`Number of edges: ${edges.length}`);
   const result = JSON.stringify({ nodes: nodeArray, edges });
   fs.writeFile(`${outputName}.json`, result, err => {
     err && console.log(err);

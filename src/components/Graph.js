@@ -1,97 +1,142 @@
-import React, { useEffect, useState } from 'react';
-import G6 from '@antv/g6';
-import insertCss from 'insert-css';
-
-import { defaultContainerWidth, defaultContainerHeight } from '../constants';
-
-insertCss(`
-  .g6-tooltip {
-    border: 1px solid #e2e2e2;
-    border-radius: 4px;
-    font-size: 12px;
-    color: #000;
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 10px 8px;
-    box-shadow: rgb(174, 174, 174) 0px 0px 10px;
-  }
-`);
+import React, { useEffect, useState, useRef } from 'react';
+import echarts from 'echarts';
+import 'echarts-gl';
+import 'echarts-graph-modularity';
 
 export default function Graph(props) {
-  const ref = React.useRef(null);
-  let graph = null;
+  const ref = useRef();
+  const graphRef = useRef();
 
-  const { style, data, handleNodeClick, ...rest } = props;
+  const { style, handleNodeClick, ...rest } = props;
 
-  const bindEvents = () => {
-    if (graph) {
-      graph.on('node:click', e => {
-        const { item } = e;
-        console.log(item.getModel());
-        handleNodeClick && handleNodeClick(item);
-      });
-    }
+  const bindEvents = () => {};
+  const loadGraph = async graph => {
+    const response = await fetch('http://localhost:8080/graph.json', {
+      mode: 'cors'
+    });
+    const data = await response.json();
+    const nodes = data.nodes;
+    let edges = data.edges;
+
+    const nodeIndexMap = {};
+
+    nodes.forEach(function(node, index) {
+      // if (node.value > 100) {
+      node.emphasis = {
+        label: {
+          show: true
+        }
+      };
+      // }
+      if (node.value > 30) {
+        node.label = {
+          show: true
+        };
+      }
+      nodeIndexMap[node.id] = index;
+    });
+    edges = edges.filter(
+      edge =>
+        nodeIndexMap[edge.source] !== undefined &&
+        nodeIndexMap[edge.target] !== undefined
+    );
+    edges = edges.map(edge => ({
+      source: nodeIndexMap[edge.source],
+      target: nodeIndexMap[edge.target]
+    }));
+    console.log(nodes, edges);
+    graph.setOption({
+      backgroundColor: '#000',
+      series: [
+        {
+          color: [
+            'rgb(203,239,15)',
+            'rgb(73,15,239)',
+            'rgb(15,217,239)',
+            'rgb(30,15,239)',
+            'rgb(15,174,239)',
+            'rgb(116,239,15)',
+            'rgb(239,15,58)',
+            'rgb(15,239,174)',
+            'rgb(239,102,15)',
+            'rgb(239,15,15)',
+            'rgb(15,44,239)',
+            'rgb(239,145,15)',
+            'rgb(30,239,15)',
+            'rgb(239,188,15)',
+            'rgb(159,239,15)',
+            'rgb(159,15,239)',
+            'rgb(15,239,44)',
+            'rgb(15,239,87)',
+            'rgb(15,239,217)',
+            'rgb(203,15,239)',
+            'rgb(239,15,188)',
+            'rgb(239,15,102)',
+            'rgb(239,58,15)',
+            'rgb(239,15,145)',
+            'rgb(116,15,239)',
+            'rgb(15,131,239)',
+            'rgb(73,239,15)',
+            'rgb(15,239,131)',
+            'rgb(15,87,239)',
+            'rgb(239,15,231)'
+          ],
+          type: 'graphGL',
+          nodes: nodes,
+          edges: edges,
+          modularity: {
+            resolution: 2,
+            sort: true
+          },
+          lineStyle: {
+            color: 'rgba(255,255,255,1)',
+            opacity: 0.05,
+            width: 1
+          },
+          itemStyle: {
+            opacity: 1
+            // borderColor: '#fff',
+            // borderWidth: 1
+          },
+          focusNodeAdjacencyOn: 'click',
+          symbolSize: function(value = 0) {
+            return Math.sqrt(value / 2);
+          },
+          label: {
+            textStyle: {
+              color: '#fff'
+            }
+          },
+          emphasis: {
+            label: {
+              show: false
+            },
+            lineStyle: {
+              opacity: 0.5,
+              width: 1
+            }
+          },
+          forceAtlas2: {
+            steps: 5,
+            maxSteps: 3000,
+            jitterTolerence: 10,
+            edgeWeight: [0.2, 1],
+            gravity: 5,
+            edgeWeightInfluence: 0
+            // preventOverlap: true
+          }
+        }
+      ]
+    });
   };
 
   useEffect(() => {
-    const calculatedWidth = ref.current.clientWidth || defaultContainerWidth;
-    const calculatedHeight = ref.current.clientHeight || defaultContainerHeight;
-
-    if (!graph) {
-      graph = new G6.Graph({
-        container: ref.current,
-        width: calculatedWidth,
-        height: calculatedHeight,
-        fitView: true,
-        modes: {
-          default: [
-            'drag-canvas',
-            'zoom-canvas',
-            'activate-relations',
-            {
-              type: 'tooltip',
-              formatText: model => {
-                return model.label;
-              }
-            },
-            {
-              type: 'collapse-expand-group',
-              trigger: 'click'
-            }
-          ]
-        },
-        layout: {
-          type: 'dagre'
-        },
-        defaultEdge: {
-          size: 1,
-          style: {
-            stroke: '#e2e2e2'
-          }
-        },
-        nodeStateStyles: {
-          active: {
-            opacity: 1
-          },
-          inactive: {
-            opacity: 0.2
-          }
-        },
-        edgeStateStyles: {
-          active: {
-            stroke: '#999'
-          }
-        }
-      });
-      bindEvents();
+    console.log(graphRef.current);
+    if (!graphRef.current) {
+      graphRef.current = echarts.init(ref.current);
+      loadGraph(graphRef.current);
     }
-
-    graph.data(data);
-
-    graph.render();
-
-    const edges = graph.getEdges();
-    graph.paint();
-  }, [data]);
+  }, []);
 
   return <div ref={ref} style={style} {...rest}></div>;
 }

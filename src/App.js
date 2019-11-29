@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Row, Col, Layout } from 'antd';
 import Graph from './components/Graph';
-import { data, metaData } from './mock/data';
+import { metaData } from './mock/data';
 import MetaDisplay from './components/MetaDisplay';
 import 'antd/dist/antd.css';
 
@@ -28,8 +28,11 @@ function App() {
           <Row>
             <Col span={16}>
               <Graph
-                style={{ border: '1px solid black' }}
-                data={data}
+                style={{
+                  border: '1px solid black',
+                  width: '100%',
+                  height: '800px'
+                }}
                 handleNodeClick={handleNodeClick}
               ></Graph>
             </Col>

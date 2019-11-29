@@ -22,11 +22,11 @@ export default function Graph(props) {
 
     nodes.forEach(function(node, index) {
       // if (node.value > 100) {
-      node.emphasis = {
-        label: {
-          show: true
-        }
-      };
+      // node.emphasis = {
+      //   label: {
+      //     show: true
+      //   }
+      // };
       // }
       if (node.value > 30) {
         node.label = {
@@ -98,6 +98,7 @@ export default function Graph(props) {
             // borderColor: '#fff',
             // borderWidth: 1
           },
+          focusNodeAdjacency: false,
           focusNodeAdjacencyOn: 'click',
           symbolSize: function(value = 0) {
             return Math.sqrt(value / 2);
@@ -109,7 +110,7 @@ export default function Graph(props) {
           },
           emphasis: {
             label: {
-              show: false
+              show: true
             },
             lineStyle: {
               opacity: 0.5,
@@ -122,7 +123,8 @@ export default function Graph(props) {
             jitterTolerence: 10,
             edgeWeight: [0.2, 1],
             gravity: 5,
-            edgeWeightInfluence: 0
+            edgeWeightInfluence: 0,
+            GPU: true
             // preventOverlap: true
           }
         }

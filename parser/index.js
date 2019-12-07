@@ -11,7 +11,8 @@ const nodes = {
   root: {
     id: '-1',
     name: 'root',
-    children: []
+    value: 0,
+    children: {}
   }
 };
 const edges = [];
@@ -45,7 +46,8 @@ reader.on('line', function(line) {
       nodes[caller] = {
         id: `${count++}`,
         name: caller,
-        value: 1
+        value: 1,
+        children: { [callee]: true }
       };
     }
 
@@ -53,15 +55,18 @@ reader.on('line', function(line) {
       nodes[callee] = {
         id: `${count++}`,
         name: callee,
-        value: 1
+        value: 1,
+        children: {}
       };
     }
     nodes[caller].value++;
-    nodes[callee].value++;
-    edges.push({
-      source: nodes[caller].id,
-      target: nodes[callee].id
-    });
+    if (!nodes[caller].children[callee]) {
+      nodes[caller].children[callee] = true;
+      edges.push({
+        source: nodes[caller].id,
+        target: nodes[callee].id
+      });
+    }
   } else if (line.startsWith('contains:')) {
     line = line.substring(9).trim();
     parts = line.split('*');
@@ -74,7 +79,8 @@ reader.on('line', function(line) {
       nodes[className] = {
         id: `${count++}`,
         name: className,
-        value: 1
+        value: 1,
+        children: { [methodName]: true }
       };
       edges.push({
         source: -1,
@@ -86,21 +92,27 @@ reader.on('line', function(line) {
       nodes[methodName] = {
         id: `${count++}`,
         name: methodName,
-        value: 1
+        value: 1,
+        children: {}
       };
     }
     nodes[className].value++;
-    nodes[methodName].value++;
-    edges.push({
-      source: nodes[className].id,
-      target: nodes[methodName].id
-    });
+    if (!nodes[className].children[methodName]) {
+      nodes[className].children[methodName] = true;
+      edges.push({
+        source: nodes[className].id,
+        target: nodes[methodName].id
+      });
+    }
   }
 });
 
 reader.on('close', function() {
   const seenId = {};
-  const nodeArray = Object.keys(nodes).map(key => nodes[key]);
+  const nodeArray = Object.keys(nodes).map(key => {
+    nodes[key].children = Object.keys(nodes[key].children);
+    return nodes[key];
+  });
   console.log(`Number of nodes: ${nodeArray.length}`);
   console.log(`Number of edges: ${edges.length}`);
   const result = JSON.stringify({ nodes: nodeArray, edges });
@@ -108,34 +120,3 @@ reader.on('close', function() {
     err && console.log(err);
   });
 });
-
-// fs.readFile(filename, 'utf8', (err, data) => {
-//   if (err) {
-//     console.log(err);
-//     return;
-//   }
-//   data = data.replace(/[\u0001-\u0006\u0008-\u0009\u000B-\u001A]/g, '');
-//   const parts = data.split('\n').map(s => s.split(' '));
-//   const map = {};
-//   for (let part of parts) {
-//     const cluster = part[1];
-//     if (!cluster) {
-//       continue;
-//     }
-//     const element = part[2];
-//     if (!map[cluster]) {
-//       map[cluster] = [];
-//     }
-//     map[cluster].push(element);
-//   }
-
-//   const tableData = [['Cluster', 'Elements']];
-//   for (let key of Object.keys(map)) {
-//     let elements = map[key].join('\n');
-//     tableData.push([key, elements]);
-//   }
-
-//   fs.writeFile(`${outputName}.json`, result, err => {
-//     err && console.log(err);
-//   });
-// });

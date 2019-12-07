@@ -3,6 +3,8 @@ import echarts from 'echarts';
 import 'echarts-gl';
 import 'echarts-graph-modularity';
 
+// Following code is adapted from https://echarts.apache.org/examples/en/
+
 export default function Graph(props) {
   const ref = useRef();
   const graphRef = useRef();
